@@ -9,10 +9,13 @@
 + Python 3.8+
 + Pip
 
-# Needed Modules and 3rd Party Packages
+# Needed Modules
 + import random
++ import pprint
 + import os
-+ import dotenv
+
+# Needed 3rd Party Packages
++ python-dotenv
 
 # Installation
 

@@ -1,5 +1,4 @@
 # Desired packages include:
 
-import random
-import os
-import dotenv
+python-dotenv
+pip install sendgrid
