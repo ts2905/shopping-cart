@@ -84,7 +84,14 @@ print("    CHECKOUT AT: "+clean_timestamp)
 print("---------------------------------------")
 
 subtotal = 0
-tax_rate = 0.0875
+
+import os
+import dotenv
+dotenv.load_dotenv()
+tax_rate = float(os.getenv("TAX_RATE"))
+# tax_rate = 0.0875
+
+
 total = 0
 print("SELECTED PRODUCTS:")
 for selected_id in selected_ids:
