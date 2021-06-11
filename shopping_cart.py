@@ -71,8 +71,8 @@ while True:
 
 
 # Welcome message
-print("---------------------------------------")
-print("WELCOME TO TRADER TRAV'S GROCERY STORE!")
+str1 = print("---------------------------------------")
+str2 = print("WELCOME TO TRADER TRAV'S GROCERY STORE!")
 print("55 East 45th Street, New York, NY 10016")
 print("    (212) 622-3841 | TraderTrav.com    ")
 
@@ -97,10 +97,11 @@ for selected_id in selected_ids:
 tax = subtotal * tax_rate
 total = subtotal + tax
 
+print("---------------------------------------")
 print(f"SUBTOTAL: {to_usd(subtotal)}")
 print(f"TAX: {to_usd(tax)}")
 print(f"TOTAL: {to_usd(total)}")
-
+print("---------------------------------------")
 
 import os
 import sendgrid
@@ -113,24 +114,25 @@ while True:
         receipt_email = input("Please input your email address, or 'N' to opt-out:")     
         print("Sending receipt via email...")
 
-
-        # message = Mail(
-        #     from_email = "ts2905@stern.nyu.edu",
-        #     to_emails = receipt_email,
-        #     subject = 'Sending with Twilio SendGrid is Fun',
-        #     html_content='<strong>and easy to do anywhere, even with Python</strong>')
-        # try:
-        #     sg = SendGridAPIClient(os.environ.get("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"))
-        #     response = sg.send(message)
-        #     print(response.status_code)
-        #     print(response.body)
-        #     print(response.headers)
-        # except Exception as e:
-        #     print(e.message)
-
-
+        message = Mail(
+            from_email = "ts2905@stern.nyu.edu",
+            to_emails = receipt_email,
+            subject = 'Sending with Twilio SendGrid is Fun',
+            html_content='<strong>and easy to do anywhere, even with Python</strong>')
+            
+        try:
+            sg = SendGridAPIClient(os.environ.get("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"))
+            response = sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            print(e.message)
+        
         print("Email sent successfully!")
+        
         break
+    
     elif receipt.upper() == "N":
         break
     elif receipt.upper() != "Y" or "N":
