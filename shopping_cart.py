@@ -46,6 +46,13 @@ def to_usd(my_price):
 # import random
 # import os
 
+import datetime
+import os
+import dotenv
+import sendgrid
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 all_ids = []
 selected_id = []
 selected_ids = []
@@ -54,7 +61,7 @@ for i in products:
     all_ids.append(str(i["id"]))
 
 while True:
-    selected_id = input("Please enter a valid product id, or 'DONE' to continue:")
+    selected_id = input("Please enter a valid product id, or 'DONE' to continue: ")
     if selected_id.upper() == "DONE":
         break
     elif selected_id not in all_ids:
@@ -77,7 +84,6 @@ print("55 East 45th Street, New York, NY 10016")
 print("    (212) 622-3841 | TraderTrav.com    ")
 
 # Timestamp
-import datetime
 timestamp = datetime.datetime.now()
 clean_timestamp = timestamp.strftime("%Y-%m-%d %I:%M %p")
 print("    CHECKOUT AT: "+clean_timestamp)
@@ -85,12 +91,8 @@ print("---------------------------------------")
 
 subtotal = 0
 
-import os
-import dotenv
 dotenv.load_dotenv()
-tax_rate = float(os.getenv("TAX_RATE"))
-# tax_rate = 0.0875
-
+TAX_RATE = float(os.environ.get("TAX_RATE"))
 
 total = 0
 print("SELECTED PRODUCTS:")
@@ -101,7 +103,7 @@ for selected_id in selected_ids:
     print(". . . ",matching_product["name"],f"({to_usd(matching_product['price'])})")
     subtotal = subtotal + matching_product["price"]
 
-tax = subtotal * tax_rate
+tax = subtotal * TAX_RATE
 total = subtotal + tax
 
 print("---------------------------------------")
@@ -110,38 +112,51 @@ print(f"TAX: {to_usd(tax)}")
 print(f"TOTAL: {to_usd(total)}")
 print("---------------------------------------")
 
-import os
-import sendgrid
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+email_content = "TBD"
+
+
+
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
+SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="OOPS, please set env var called 'SENDER_ADDRESS'")
+
+# client = SendGridAPIClient(SENDGRID_API_KEY)
+# print("CLIENT:", type(client))
 
 while True:
-    receipt = input("Would you like a receipt? (Y/N):")
+    receipt = input("Would you like a receipt? (Y/N): ")
     if receipt.upper() == "Y":
-        receipt_email = input("Please input your email address, or 'N' to opt-out:")     
-        print("Sending receipt via email...")
+        receipt_email = input("Please input your email address, or 'N' to opt-out: ")     
+        
+        if receipt_email.upper() != "N":
+            print("Sending receipt via email...")
 
-        message = Mail(
-            from_email = "ts2905@stern.nyu.edu",
-            to_emails = receipt_email,
-            subject = 'Sending with Twilio SendGrid is Fun',
-            html_content='<strong>and easy to do anywhere, even with Python</strong>')
+            message = Mail(
+                from_email = os.environ.get("SENDER_ADDRESS"),
+                to_emails = receipt_email,
+                subject = str(f"Trader Trav's Receipt from {clean_timestamp}"),
+                # html_content=f"Subtotal: {subtotal}\nTax: {tax}\nTotal: {Total}")
+                html_content='<strong> email_content </strong>')
+
+            try:
+                sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+                # response = client.send(message)
+                response = sg.send(message)
+                print(response.status_code)
+                print(response.body)
+                print(response.headers)
+
+            except Exception as e:
+                print(e.message)
             
-        try:
-            sg = SendGridAPIClient(os.environ.get("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"))
-            response = sg.send(message)
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
-        except Exception as e:
-            print(e.message)
+            # print("Email sent successfully!")
+            break
         
-        print("Email sent successfully!")
-        
-        break
+        else:
+            break
     
     elif receipt.upper() == "N":
         break
+
     elif receipt.upper() != "Y" or "N":
         print("ERROR - Please enter 'Y' or 'N'")
 
