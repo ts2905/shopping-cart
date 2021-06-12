@@ -9,13 +9,16 @@
 + Python 3.8+
 + Pip
 
-# Needed Modules
-+ import random
-+ import pprint
-+ import os
-
 # Needed 3rd Party Packages
 + python-dotenv
++ sendgrid
++ pandas
+
+# Needed Modules
++ import os
++ from sendgrid import SendGridAPIClient
++ from sendgrid.helpers.mail import Mail
++ from pandas import read_csv
 
 # Installation
 
@@ -35,7 +38,16 @@ pip install -r requirements.txt
 ```
 
 5. Edit the virtual environment
-* Edit the .env file with necessary credentials
+* Create a .env and assign the declare the below env variables appropriately
+```
+CUSTOMER_NAME=
+
+SENDER_ADDRESS=
+SENDGRID_API_KEY=
+SENDGRID_TEMPLATE_ID=
+
+TAX_RATE=
+```
 
 6. Usage
 * Run the game script

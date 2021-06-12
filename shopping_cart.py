@@ -105,8 +105,8 @@ total = subtotal + tax
 
 print("---------------------------------------")
 print(f"SUBTOTAL: {to_usd(subtotal)}")
-print(f"TAX: {to_usd(tax)}")
-print(f"TOTAL: {to_usd(total)}")
+print(f"     TAX: {to_usd(tax)}")
+print(f"   TOTAL: {to_usd(total)}")
 print("---------------------------------------")
 
 email_content = f"SUBTOTAL: {to_usd(subtotal)}\r\nTAX: {to_usd(tax)}\r\nTOTAL: {to_usd(total)}"
