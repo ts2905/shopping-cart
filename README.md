@@ -37,8 +37,31 @@ conda activate shopping-env
 pip install -r requirements.txt
 ```
 
-5. Edit the virtual environment
-* Create a .env and assign the declare the below env variables appropriately
+5. Setup a SendGrid account, SendGrid API, and SendGrid Email Template
++ Go to the [SendGrid website](https://sendgrid.com/), click the Start For Free, and setup an account
++ Create an API Key (Settings >> API Keys >> Create API Key)
++ Copy the API Key and assign it to the environment variable "SENDGRID_API_KEY", as outlined in the next step
++ Create a [SendGrid Dynamic Template](https://mc.sendgrid.com/dynamic-templates) and assign it to the enviornment variable "SENDGRID_TEMPLATE_ID", as outlined in the next step. Example template code posted below.
+
+```
+<img src="https://www.shareicon.net/data/128x128/2016/05/04/759867_food_512x512.png">
+
+<h3>Hello this is your receipt</h3>
+
+<p>Date: {{human_friendly_timestamp}}</p>
+
+<ul>
+{{#each products}}
+	<li>You ordered: ... {{this.name}}</li>
+{{/each}}
+</ul>
+
+<p>Total: {{total_price_usd}}</p>
+```
+
+
+6. Edit the virtual environment
+* Create a ".env" file and assign values to the following environment variables:
 ```
 CUSTOMER_NAME=
 
@@ -49,7 +72,8 @@ SENDGRID_TEMPLATE_ID=
 TAX_RATE=
 ```
 
-6. Usage
+
+7. Usage
 * Run the game script
 ```py
 python shopping_cart.py

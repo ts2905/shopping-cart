@@ -50,6 +50,10 @@ import sendgrid
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+dotenv.load_dotenv()
+CUSTOMER_NAME = os.getenv("CUSTOMER_NAME")
+TAX_RATE = float(os.environ.get("TAX_RATE"))
+
 all_ids = []
 selected_id = []
 selected_ids = []
@@ -57,6 +61,8 @@ selected_ids = []
 for i in products:
     all_ids.append(str(i["id"]))
 
+# Scan grocery items
+# FYI all inputs end up as string
 while True:
     selected_id = input("Please enter a valid product id, or 'DONE' to continue: ")
     if selected_id.upper() == "DONE":
@@ -65,14 +71,6 @@ while True:
         print("ERROR - Invalid product id. Please try again!")
     else:
         selected_ids.append(selected_id)
-# FYI all inputs end up as string
-
-
-# capture product ids until we're done
-
-
-# product look ups
-
 
 # Welcome message
 str1 = print("---------------------------------------")
@@ -86,11 +84,8 @@ clean_timestamp = timestamp.strftime("%Y-%m-%d %I:%M %p")
 print("    CHECKOUT AT: "+clean_timestamp)
 print("---------------------------------------")
 
+# Calculate total cost
 subtotal = 0
-
-dotenv.load_dotenv()
-TAX_RATE = float(os.environ.get("TAX_RATE"))
-
 total = 0
 print("SELECTED PRODUCTS:")
 for selected_id in selected_ids:
@@ -109,15 +104,34 @@ print(f"     TAX: {to_usd(tax)}")
 print(f"   TOTAL: {to_usd(total)}")
 print("---------------------------------------")
 
+# Send email receipt via SendGrid
+# Collect API Keys from environment variables
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
+SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="OOPS, please set env var called 'SENDER_ADDRESS'")
+SENDGRID_TEMPLATE_ID = os.getenv("SENDGRID_TEMPLATE_ID", default="OOPS, please set env var called 'SENDGRID_TEMPLATE_ID'")
+
+
+client = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+# print("CLIENT:", type(client))
+
+
+subject = str(f"Trader Trav's Receipt from {clean_timestamp}")
 email_content = f"SUBTOTAL: {to_usd(subtotal)}\r\nTAX: {to_usd(tax)}\r\nTOTAL: {to_usd(total)}"
 
 
+# this must match the test data structure
+template_data = {
+    "total_price_usd": to_usd(total),
+    "human_friendly_timestamp": clean_timestamp,
+    # "products":[
+    #     {"id":1, "name": "Product 1"},
+    #     {"id":2, "name": "Product 2"},
+    #     {"id":3, "name": "Product 3"},
+    #     {"id":2, "name": "Product 2"},
+    #     {"id":1, "name": "Product 1"}
+    # ]
+} # or construct this dictionary dynamically based on the results of some other process :-D
 
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", default="OOPS, please set env var called 'SENDGRID_API_KEY'")
-SENDER_ADDRESS = os.getenv("SENDER_ADDRESS", default="OOPS, please set env var called 'SENDER_ADDRESS'")
-
-# client = SendGridAPIClient(SENDGRID_API_KEY)
-# print("CLIENT:", type(client))
 
 while True:
     receipt = input("Would you like a receipt? (Y/N): ")
@@ -127,25 +141,28 @@ while True:
         if receipt_email.upper() != "N":
             print("Sending receipt via email...")
 
-            message = Mail(
-                from_email = os.environ.get("SENDER_ADDRESS"),
-                to_emails = receipt_email,
-                subject = str(f"Trader Trav's Receipt from {clean_timestamp}"),
-                # html_content=f"Subtotal: {subtotal}\nTax: {tax}\nTotal: {Total}")
-                html_content=email_content)
+            message = Mail(              
+                from_email = os.getenv("SENDER_ADDRESS"),
+                to_emails = receipt_email)
+                # to_emails = receipt_email,    
+                # subject = subject,
+                # html_content=email_content)
+
+            message.template_id = SENDGRID_TEMPLATE_ID
+            message.dynamic_template_data = template_data
 
             try:
-                sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
-                # response = client.send(message)
-                response = sg.send(message)
+                response = client.send(message)
                 # print(response.status_code)
                 # print(response.body)
                 # print(response.headers)
+                print("Email sent successfully!")
 
-            except Exception as e:
-                print(e.message)
-            
-            # print("Email sent successfully!")
+            except Exception as err:
+                print("Invalid email, sorry!")
+                # print(type(err))
+                # print(err)
+
             break
         
         else:
@@ -157,5 +174,5 @@ while True:
     elif receipt.upper() != "Y" or "N":
         print("ERROR - Please enter 'Y' or 'N'")
 
-print("Thanks for shopping!")
+print(f"Thanks for shopping, {CUSTOMER_NAME}!")
 

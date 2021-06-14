@@ -1,5 +1,5 @@
 # Desired packages include:
 
 python-dotenv
-pip install sendgrid
-pip install pandas
+sendgrid
+pandas
